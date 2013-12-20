@@ -1,25 +1,27 @@
 <html>
     <head>
-        <script type="text/javascript" src="src/GameOfLife.js"></script>
-        <script type="text/javascript" src="src/GameOfLife.Display.js"></script>
+        <script type="text/javascript" src="src/Vector.js"></script>
+        <script type="text/javascript" src="src/Boid.js"></script>
+        <script type="text/javascript" src="src/Simulation.js"></script>
+        <script type="text/javascript" src="src/Display.js"></script>
 
         <style>
-            #gol-display {
+            #display {
                 top: 10px;
                 left: 10px;
                 border: 1px solid black;
-                width: 400px;
+                width: 600px;
                 height: 400px;
                 position: relative;
             }
         </style>
     </head>
     <body>
-        <canvas id="gol-display">
+        <canvas id="display">
         </canvas>
     </body>
 
     <script type="text/javascript">
-        GameOfLifeDisplay.init(document.getElementById('gol-display'));
+        Flocking.Display.init(document.getElementById('display'));
     </script>
 </html>
