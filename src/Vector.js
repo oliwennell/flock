@@ -13,4 +13,10 @@ Flocking.Vector = function (x, y) {
 
         return result;
     };
+
+    self.getSquaredDistanceTo = function(otherVector) {
+        var dx = Math.abs(self.x - otherVector.x);
+        var dy = Math.abs(self.y - otherVector.y);
+        return dx * dx + dy * dy;
+    };
 }
