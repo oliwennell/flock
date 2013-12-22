@@ -3,6 +3,92 @@ describe("Vector", function () {
 
     var tolerance = 0.001;
 
+    describe("when constructed", function () {
+
+        it("X and Y values match those given", function () {
+            var vector = new Flocking.Vector(1, 2.3);
+
+            expect(vector.x).toBe(1);
+            expect(vector.y).toBe(2.3);
+        });
+
+        it("X and Y default to 0 if unspecified", function () {
+            var vector = new Flocking.Vector();
+
+            expect(vector.x).toBe(0);
+            expect(vector.y).toBe(0);
+        });
+    });
+
+    describe("adding a vector", function() {
+
+        it("adds the X and Y values of another vector to the original vector", function () {
+            var v1 = new Flocking.Vector(1, 2);
+            var v2 = new Flocking.Vector(3, 4);
+
+            v1.add(v2);
+
+            expect(v1.x).toBe(4);
+            expect(v1.y).toBe(6);
+        });
+    });
+
+    describe("subtracting a vector", function () {
+
+        it("subtracts the X and Y values of another vector from the original vector", function () {
+            var v1 = new Flocking.Vector(1, 8);
+            var v2 = new Flocking.Vector(3, 4);
+
+            v1.subtract(v2);
+
+            expect(v1.x).toBe(-2);
+            expect(v1.y).toBe(4);
+        });
+    });
+
+    describe("multiplying a vector by a scalar", function() {
+    
+        it("multiplies the vector's X and Y values by the scalar", function() {
+            var vector = new Flocking.Vector(2, 4);
+
+            vector.multiplyScalar(2);
+
+            expect(vector.x).toBe(4);
+            expect(vector.y).toBe(8);
+        });
+    });
+
+    describe("normalising a vector", function () {
+
+        it("produces a unit vector", function () {
+            var vector = new Flocking.Vector(10, 10);
+
+            vector.normalise();
+
+            expect(vector.x * vector.x + vector.y * vector.y).toBeCloseTo(1, tolerance);
+        });
+    });
+
+    describe("duplicating a vector", function () {
+
+        it("results in a new vector with the same values", function () {
+            var original = new Flocking.Vector(1, 2);
+
+            var copy = original.duplicate();
+
+            expect(copy.x).toBe(1);
+            expect(copy.y).toBe(2);
+        });
+
+        it("results in a new vector that is not the same instance as the original vector", function () {
+            var original = new Flocking.Vector(1, 2);
+
+            var copy = original.duplicate();
+
+            expect(copy).toNotBe(original);
+        });
+    });
+
     describe("heading angle", function () {
         
         // 0 radians is line pointing at +X
@@ -23,6 +109,14 @@ describe("Vector", function () {
             expect(new Flocking.Vector(-1, -1).getHeading()).toBeCloseTo(Math.PI * 1.25, tolerance);
             expect(new Flocking.Vector(1, -1).getHeading()).toBeCloseTo(Math.PI * 1.75, tolerance);
         });
+    });
+
+    describe("length", function () {
+
+        expect(new Flocking.Vector(10, 0).getLength()).toBe(10);
+        expect(new Flocking.Vector(20, 0).getLength()).toBe(20);
+        expect(new Flocking.Vector(10, 10).getLength()).toBeCloseTo(14.1421, tolerance);
+
     });
 
     describe("squared distance", function () {
