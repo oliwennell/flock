@@ -6,17 +6,21 @@ Flocking.Display = {
     init: function(canvasElement) {
 
         var boids = [];
-        for (var index = 0; index < 30; ++index) {
+        for (var index = 0; index < 90; ++index) {
             var dir = new Flocking.Vector(Math.random(), Math.random());
+            dir.multiplyScalar(0.005);
             dir.normalise();
             var boid = new Flocking.Boid(new Flocking.Vector(150+Math.random(), 100+Math.random()), new Flocking.Vector(dir.x, dir.y));
             boids.push(boid);
         }
         var parameters = {
             maxVelocity: 1,
-            minDesirableDistance: 7,
-            maxDesirableDistance: 40,
-            flockRadius: 50
+            minDesirableDistance: 5,
+            maxDesirableDistance: 140,
+            flockRadius: 160,
+            moveSpeed: 0.005,
+            steeringSpeed: 0.001
+
         }
         var simulation = new Flocking.Simulation(boids, parameters);
 

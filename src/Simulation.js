@@ -8,6 +8,8 @@ Flocking.Simulation = function (inputBoids, parameters) {
     var minDesirableDistance = parameters.minDesirableDistance || 5;
     var maxDesirableDistance = parameters.maxDesirableDistance || 35;
     var maxVelocity = parameters.maxVelocity || 2;
+    var steeringSpeed = parameters.steeringSpeed || 0.001;
+    var moveSpeed = parameters.moveSpeed = 0.01;
 
     var boids = inputBoids.slice(0);
 
@@ -30,7 +32,7 @@ Flocking.Simulation = function (inputBoids, parameters) {
         var avgHeading = Flocking.BoidCollection.getAverageVelocity(neighbours);
         avgHeading.x /= neighbours.length;
         avgHeading.y /= neighbours.length;
-        avgHeading.multiplyScalar(msElapsed * 0.001);
+        avgHeading.multiplyScalar(msElapsed * steeringSpeed);
 
         boid.velocity.add(avgHeading);
     };
@@ -58,6 +60,8 @@ Flocking.Simulation = function (inputBoids, parameters) {
                 dir.multiplyScalar(1 / Math.min(dist, minDesirableDistance));
             else
                 dir.multiplyScalar(-1 * Math.min(dist, flockRadius));
+
+            dir.multiplyScalar(msElapsed * moveSpeed);
 
             dir.normalise();
             adjustedVel.add(dir);
@@ -93,7 +97,7 @@ Flocking.Simulation = function (inputBoids, parameters) {
             }
 
             var diff = boid.velocity.duplicate();
-            diff.multiplyScalar(msElapsed * 0.01);
+            diff.multiplyScalar(msElapsed * moveSpeed);
             boid.position.add(diff);
         }
     };
