@@ -119,6 +119,20 @@ describe("Vector", function () {
 
     });
 
+    describe("distance", function () {
+
+        it("is calculated from this vector to another", function () {
+            expect(new Flocking.Vector(0, 0).getDistanceTo(new Flocking.Vector(2, 0))).toBeCloseTo(2, tolerance);
+            expect(new Flocking.Vector(2, 0).getDistanceTo(new Flocking.Vector(0, 0))).toBeCloseTo(2, tolerance);
+            expect(new Flocking.Vector(-1, 0).getDistanceTo(new Flocking.Vector(1, 0))).toBeCloseTo(2, tolerance);
+            expect(new Flocking.Vector(0, -1).getDistanceTo(new Flocking.Vector(0, 1))).toBeCloseTo(2, tolerance);
+
+            expect(new Flocking.Vector(0, 0).getDistanceTo(new Flocking.Vector(1, 1))).toBeCloseTo(1, tolerance);
+            expect(new Flocking.Vector(1, 1).getDistanceTo(new Flocking.Vector(0, 0))).toBeCloseTo(1, tolerance);
+            expect(new Flocking.Vector(0, 0).getDistanceTo(new Flocking.Vector(-1, -1))).toBeCloseTo(1, tolerance);
+        });
+    });
+
     describe("squared distance", function () {
 
         it("is calculated from this vector to another", function () {

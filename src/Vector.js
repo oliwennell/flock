@@ -51,4 +51,8 @@ Flocking.Vector = function (x, y) {
         var dy = Math.abs(self.y - otherVector.y);
         return dx * dx + dy * dy;
     };
+
+    self.getDistanceTo = function (otherVector) {
+        return Math.sqrt(self.getSquaredDistanceTo(otherVector));
+    };
 }

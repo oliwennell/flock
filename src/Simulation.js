@@ -1,17 +1,20 @@
 var Flocking = Flocking || {};
 
-Flocking.Simulation = function () {
+Flocking.Simulation = function (inputBoids, parameters) {
     var self = this;
 
-    var boids = [];
+    parameters = parameters || {};
+    var flockRadius = parameters.flockRadius || 40;
+    var minDesirableDistance = parameters.minDesirableDistance || 5;
+    var maxDesirableDistance = parameters.maxDesirableDistance || 35;
+    var maxVelocity = parameters.maxVelocity || 2;
+
+    var boids = inputBoids.slice(0);
 
     self.getBoids = function () {
         return boids;
     };
-
-    var flockRadius = 40;
-    var idealProximity = 20;
-
+    
     var getNeighbours = function (targetIndex) {
         var others = [];
         for (var index = 0; index < boids.length; ++index) {
@@ -22,72 +25,76 @@ Flocking.Simulation = function () {
         return Flocking.BoidCollection.getWithinRadiusTo(others, boids[targetIndex].position, flockRadius);
     };
 
-    self.update = function (secondsElapsed) {
+    var steerBoidToMatchNeighbours = function (boid, neighbours, msElapsed) {
+
+        var avgHeading = Flocking.BoidCollection.getAverageVelocity(neighbours);
+        avgHeading.x /= neighbours.length;
+        avgHeading.y /= neighbours.length;
+        avgHeading.multiplyScalar(msElapsed * 0.001);
+
+        boid.velocity.add(avgHeading);
+    };
+
+    var maintainBoidDistance = function (boid, neighbours, msElapsed) {
+
+        var adjustedVel = new Flocking.Vector();
+        var numAdjusted = 0;
+
+        for (var index = 0; index < neighbours.length; ++index) {
+            var neighbour = neighbours[index];
+            
+            var sqDist = neighbour.position.getSquaredDistanceTo(boid.position);
+
+            var isTooClose = sqDist < minDesirableDistance * minDesirableDistance;
+            var isTooFarAway = sqDist > maxDesirableDistance * maxDesirableDistance;
+            if (!isTooClose && !isTooFarAway)
+                continue;
+
+            var dir = neighbour.position.duplicate();
+            dir.subtract(boid.position);
+            
+            var dist = dir.getLength();
+            if (isTooClose)
+                dir.multiplyScalar(1 / Math.min(dist, minDesirableDistance));
+            else
+                dir.multiplyScalar(-1 * Math.min(dist, flockRadius));
+
+            dir.normalise();
+            adjustedVel.add(dir);
+
+            numAdjusted++;
+        }
+
+        if (numAdjusted == 0)
+            return;
+
+        adjustedVel.x /= numAdjusted;
+        adjustedVel.y /= numAdjusted;
+        
+        adjustedVel.multiplyScalar(-1);
+
+        boid.velocity.add(adjustedVel);
+    };
+
+    self.update = function (msElapsed) {
         
         for (var index = 0; index < boids.length; ++index) {
-            var boid = boids[index];
             var neighbours = getNeighbours(index);
+            if (neighbours.length == 0)
+                continue;
 
-            var averageNeighbourDirection = Flocking.BoidCollection.getAverageVelocity(neighbours);
-            averageNeighbourDirection.x /= neighbours.length;
-            averageNeighbourDirection.y /= neighbours.length;
-            averageNeighbourDirection.multiplyScalar(secondsElapsed * 0.001);
-
-            boid.velocity.add(averageNeighbourDirection);
-            if (boid.velocity.getLength() > 2) {
+            var boid = boids[index];
+            steerBoidToMatchNeighbours(boid, neighbours, msElapsed);
+            maintainBoidDistance(boid, neighbours, msElapsed);
+            
+            if (boid.velocity.getLength() > maxVelocity) {
                 boid.velocity.normalise();
-                boid.velocity.multiplyScalar(2);
+                boid.velocity.multiplyScalar(maxVelocity);
             }
-
-            /*var overallPush = new Flocking.Vector();
-            var numPushes = 0;
-
-            for (var neighbourIndex = 0; neighbourIndex < neighbours.length; ++neighbourIndex) {
-                var neighbour = neighbours[neighbourIndex];
-
-                var dist = Math.sqrt(boid.position.getSquaredDistanceTo(neighbour.position));
-                if (dist < idealProximity) {
-                    // Too close
-                    var push = neighbour.position.duplicate();
-                    push.subtract(boid.position);
-                    push.normalise();
-                    push.multiplyScalar((-(1 / dist)) * secondsElapsed * 0.001);
-
-                    overallPush.add(push);
-                    numPushes++;
-                }
-                else if (dist > idealProximity) {
-                    // Too far away
-                    var push = neighbour.position.duplicate();
-                    push.subtract(boid.position);
-                    push.normalise();
-                    push.multiplyScalar(dist * secondsElapsed * 0.00001);
-
-                    overallPush.add(push);
-                    numPushes++;
-                }
-                else {
-                    continue;
-                }
-            }
-
-            if (numPushes > 0) {
-                overallPush.x = overallPush.x / numPushes;
-                overallPush.y = overallPush.y / numPushes;
-                boid.velocity.add(overallPush);
-            }*/
 
             var diff = boid.velocity.duplicate();
-            diff.multiplyScalar(secondsElapsed * 0.01);
+            diff.multiplyScalar(msElapsed * 0.01);
             boid.position.add(diff);
         }
     };
-
-    var init = function () {
-        boids = [];
-        boids.push(new Flocking.Boid(new Flocking.Vector(40, 30), new Flocking.Vector(0.500, 0.500)));
-        boids.push(new Flocking.Boid(new Flocking.Vector(40, 40), new Flocking.Vector(1.000, 0.000)));
-        boids.push(new Flocking.Boid(new Flocking.Vector(40, 50), new Flocking.Vector(0.500, -0.500)));
-    };
-    init();
 };

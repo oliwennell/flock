@@ -5,8 +5,22 @@ Flocking.Display = {
     
     init: function(canvasElement) {
 
+        var boids = [];
+        for (var index = 0; index < 30; ++index) {
+            var dir = new Flocking.Vector(Math.random(), Math.random());
+            dir.normalise();
+            var boid = new Flocking.Boid(new Flocking.Vector(150+Math.random(), 100+Math.random()), new Flocking.Vector(dir.x, dir.y));
+            boids.push(boid);
+        }
+        var parameters = {
+            maxVelocity: 1,
+            minDesirableDistance: 7,
+            maxDesirableDistance: 40,
+            flockRadius: 50
+        }
+        var simulation = new Flocking.Simulation(boids, parameters);
+
         var lastTimeUpdated = null;
-        var simulation = new Flocking.Simulation();
 
         var context = canvasElement.getContext('2d');
         
@@ -15,7 +29,7 @@ Flocking.Display = {
 
             context.fillStyle = 'black';
 
-            var halfBoidSize = 3;
+            var halfBoidSize = 2;
             var boids = simulation.getBoids();
             for (var index = 0; index < boids.length; ++index) {
                 var boid = boids[index];
