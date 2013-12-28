@@ -6,21 +6,22 @@ Flocking.Display = {
     init: function(canvasElement) {
 
         var boids = [];
-        for (var index = 0; index < 90; ++index) {
+        var width = canvasElement.width;
+        var height = canvasElement.height;
+        for (var index = 0; index < 150; ++index) {
             var dir = new Flocking.Vector(Math.random(), Math.random());
-            dir.multiplyScalar(0.005);
             dir.normalise();
-            var boid = new Flocking.Boid(new Flocking.Vector(150+Math.random(), 100+Math.random()), new Flocking.Vector(dir.x, dir.y));
+            var boid = new Flocking.Boid(
+                new Flocking.Vector(width*0.2 + width * Math.random()*0.6, height*0.2 + height * Math.random()*0.6),
+                new Flocking.Vector(dir.x, dir.y));
             boids.push(boid);
         }
+        var halfBoidSize = 1.5;
         var parameters = {
-            maxVelocity: 1,
-            minDesirableDistance: 5,
-            maxDesirableDistance: 140,
-            flockRadius: 160,
-            moveSpeed: 0.005,
-            steeringSpeed: 0.001
-
+            flockRadius: 40,
+            minDesirableDistance: 3,
+            maxVelocity: 0.005,
+            steeringSpeed: 0.002
         }
         var simulation = new Flocking.Simulation(boids, parameters);
 
@@ -33,7 +34,6 @@ Flocking.Display = {
 
             context.fillStyle = 'black';
 
-            var halfBoidSize = 2;
             var boids = simulation.getBoids();
             for (var index = 0; index < boids.length; ++index) {
                 var boid = boids[index];

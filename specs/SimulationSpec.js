@@ -7,8 +7,8 @@ describe("Simulation", function () {
     var parameters = {
         flockRadius: 40,
         minDesirableDistance: 5,
-        maxDesirableDistance: 35,
-        maxVelocity: 2
+        maxVelocity: 0.01,
+        steeringSpeed: 0.01
     };
 
     describe("A boid that is within range to others", function () {
@@ -52,26 +52,7 @@ describe("Simulation", function () {
                 }
 
                 var distance = boids[0].position.getDistanceTo(boids[1].position);
-                expect(distance).toBeGreaterThan(4.9);
-            });
-        });
-
-        describe("when it starts to become too far away", function () {
-
-            it("moves away from them", function () {
-                boids = [
-                    new Flocking.Boid(new Flocking.Vector(40, 40), new Flocking.Vector(1.000, 0.000)),
-                    new Flocking.Boid(new Flocking.Vector(40, 75), new Flocking.Vector(1.000, 0.000)),
-                ];
-
-                simulation = new Flocking.Simulation(boids, parameters);
-
-                for (var time = 0; time < 2000; time += 15) {
-                    simulation.update(15);
-                }
-
-                var distance = boids[0].position.getDistanceTo(boids[1].position);
-                expect(distance).toBeLessThan(35);
+                expect(distance).toBeGreaterThan(5);
             });
         });
     });
@@ -121,6 +102,21 @@ describe("Simulation", function () {
 
             var distance = boids[0].position.getDistanceTo(boids[1].position);
             expect(distance).toBeCloseTo(70, tolerance);
+        });
+
+        describe("continues moving at its original velocity", function () {
+            boids = [
+                new Flocking.Boid(new Flocking.Vector(10, 10), new Flocking.Vector(1.000, 0.000)),
+            ];
+
+            simulation = new Flocking.Simulation(boids, parameters);
+
+            for (var time = 0; time < 2000; time += 15) {
+                simulation.update(15);
+            }
+
+            expect(boids[0].position.x).toBeGreaterThan(10);
+            expect(boids[0].position.y).toBeCloseTo(10, tolerance);
         });
     });
 });

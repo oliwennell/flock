@@ -55,4 +55,11 @@ Flocking.Vector = function (x, y) {
     self.getDistanceTo = function (otherVector) {
         return Math.sqrt(self.getSquaredDistanceTo(otherVector));
     };
+
+    self.limit = function (maxVelocity) {
+        if (self.getLength() > maxVelocity) {
+            self.normalise();
+            self.multiplyScalar(maxVelocity);
+        }
+    };
 }
