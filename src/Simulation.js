@@ -8,6 +8,8 @@ Flocking.Simulation = function (inputBoids, parameters) {
     var minDesirableDistance = parameters.minDesirableDistance || 5;
     var maxVelocity = parameters.maxVelocity || 0.01;
     var steeringSpeed = parameters.steeringSpeed || 0.01;
+    var width = parameters.width || 600;
+    var height = parameters.height || 400;
 
     var boids = inputBoids.slice(0);
 
@@ -106,6 +108,11 @@ Flocking.Simulation = function (inputBoids, parameters) {
             var diff = boid.velocity.duplicate();
             diff.limit(msElapsed * maxVelocity);
             boid.position.add(diff);
+
+            if (boid.position.y < 0) boid.position.y = height + boid.position.y;
+            else if (boid.position.y > height) boid.position.y = boid.position.y - height;
+            if (boid.position.x < 0) boid.position.x = width + boid.position.x;
+            else if (boid.position.x > width) boid.position.x = boid.position.x - width;
         }
     };
 };
