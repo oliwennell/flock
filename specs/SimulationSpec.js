@@ -123,6 +123,29 @@ describe("Simulation", function () {
         });
     });
 
+    describe("A boid that is within range to a boulder", function () {
+
+        it("avoids it", function () {
+            var boid = new Flocking.Boid(new Flocking.Vector(20, 150), new Flocking.Vector(1.000, 0.000));
+            var boulder = {
+                position: new Flocking.Vector(40, 150),
+                radius: 20
+            };
+
+            simulation = new Flocking.Simulation([ boid ], parameters, [ boulder ]);
+
+            for (var time = 0; time < 4000; time += 15) {
+                simulation.update(15);
+
+                var boidBoulderDistance = boid.position.getDistanceTo(boulder.position);
+                var isBoidWithinBoulder = boidBoulderDistance <= boulder.radius;
+                expect(isBoidWithinBoulder).toBe(false);
+                if (isBoidWithinBoulder)
+                    return;
+            }
+        });
+    });
+
     describe("A boid that goes out of the visible area", function () {
 
         describe("via the top", function () {
@@ -197,4 +220,6 @@ describe("Simulation", function () {
             });
         });
     });
+
+
 });

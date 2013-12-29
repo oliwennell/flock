@@ -146,4 +146,37 @@ describe("Vector", function () {
             expect(new Flocking.Vector(0, 0).getSquaredDistanceTo(new Flocking.Vector(-1, -1))).toBeCloseTo(2, tolerance);
         });
     });
+
+    describe("clamping", function () {
+
+        describe("A vector is clamped", function() {
+        
+            it("when its length exceeds the maximum", function () {
+                var vector = new Flocking.Vector(2, 0);
+
+                vector.clamp(1);
+
+                expect(vector.getLength()).toBe(1);
+            });
+        });
+
+        describe("A vector is not clamped", function () {
+
+            it("when its length equals the maximum", function () {
+                var vector = new Flocking.Vector(1, 0);
+
+                vector.clamp(1);
+
+                expect(vector.getLength()).toBe(1);
+            });
+
+            it("when its length is less than the maximum", function () {
+                var vector = new Flocking.Vector(0.5, 0);
+
+                vector.clamp(1);
+
+                expect(vector.getLength()).toBe(0.5);
+            });
+        });
+    });
 });

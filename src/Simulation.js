@@ -1,6 +1,6 @@
 var Flocking = Flocking || {};
 
-Flocking.Simulation = function (inputBoids, parameters) {
+Flocking.Simulation = function (inputBoids, parameters, inputBoulders) {
     var self = this;
 
     parameters = parameters || {};
@@ -12,25 +12,24 @@ Flocking.Simulation = function (inputBoids, parameters) {
     var height = parameters.height || 400;
 
     var boids = inputBoids.slice(0);
+    var boulders = inputBoulders !== undefined ? inputBoulders.slice(0) : [];
 
     self.getBoids = function () {
         return boids;
     };
+
+    self.getBoulders = function () {
+        return boulders;
+    };
     
     var getNeighbours = function (targetIndex) {
-        var others = [];
-        for (var index = 0; index < boids.length; ++index) {
-            if (index != targetIndex)
-                others.push(boids[index]);
-        }
-
-        return Flocking.BoidCollection.getWithinRadiusTo(others, boids[targetIndex].position, flockRadius);
+        return Flocking.BoidCollection.getWithinRadiusTo(boids[targetIndex], boids, flockRadius);
     };
 
     var alignBoidWithNeighbours = function (boid, neighbours, msElapsed) {
 
         var avgHeading = Flocking.BoidCollection.getAverageVelocity(neighbours);
-        avgHeading.limit(msElapsed * steeringSpeed);
+        avgHeading.clamp(msElapsed * steeringSpeed);
 
         boid.velocity.add(avgHeading);
     };
@@ -51,7 +50,7 @@ Flocking.Simulation = function (inputBoids, parameters) {
         var steer = adjust.duplicate();
         steer.subtract(boid.velocity);
 
-        steer.limit(msElapsed * steeringSpeed);
+        steer.clamp(msElapsed * steeringSpeed);
         boid.velocity.add(steer);
     };
 
@@ -93,6 +92,43 @@ Flocking.Simulation = function (inputBoids, parameters) {
         boid.velocity.add(adjustedVel);
     };
 
+    var separateBoidFromBoulders = function (boid, boulders, msElapsed) {
+        var adjustedVel = new Flocking.Vector();
+        var numAdjusted = 0;
+
+        for (var index = 0; index < boulders.length; ++index) {
+            var boulder = boulders[index];
+
+            var sqDist = boulder.position.getSquaredDistanceTo(boid.position);
+            var isTooClose = sqDist < (boulder.radius * 4) * (boulder.radius * 4);
+            if (!isTooClose)
+                continue;
+
+            var dir = boulder.position.duplicate();
+            dir.subtract(boid.position);
+
+            var x = dir.x;
+            var y = dir.y;
+            dir.x = y;
+            dir.y = -x;
+
+            adjustedVel.add(dir);
+
+            numAdjusted++;
+        }
+
+        if (numAdjusted == 0)
+            return;
+
+        adjustedVel.x /= numAdjusted;
+        adjustedVel.y /= numAdjusted;
+
+        adjustedVel.normalise();
+        adjustedVel.multiplyScalar(msElapsed * maxVelocity);
+
+        boid.velocity.add(adjustedVel);
+    };
+
     self.update = function (msElapsed) {
         
         for (var index = 0; index < boids.length; ++index) {
@@ -105,8 +141,11 @@ Flocking.Simulation = function (inputBoids, parameters) {
                 steerBoidToCentreOfNeighbours(boid, neighbours, msElapsed);
             }
 
+            if (boulders.length != 0)
+                separateBoidFromBoulders(boid, boulders, msElapsed);
+
             var diff = boid.velocity.duplicate();
-            diff.limit(msElapsed * maxVelocity);
+            diff.clamp(msElapsed * maxVelocity);
             boid.position.add(diff);
 
             if (boid.position.y < 0) boid.position.y = height + boid.position.y;

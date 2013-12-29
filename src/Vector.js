@@ -56,10 +56,10 @@ Flocking.Vector = function (x, y) {
         return Math.sqrt(self.getSquaredDistanceTo(otherVector));
     };
 
-    self.limit = function (maxVelocity) {
-        if (self.getLength() > maxVelocity) {
+    self.clamp = function (maxLength) {
+        if (self.getLength() > maxLength) {
             self.normalise();
-            self.multiplyScalar(maxVelocity);
+            self.multiplyScalar(maxLength);
         }
     };
 }

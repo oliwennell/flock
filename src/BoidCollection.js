@@ -25,15 +25,18 @@ Flocking.BoidCollection = {
 		return new Flocking.Vector(sum.x / boids.length, sum.y / boids.length);
 	},
 	
-	getWithinRadiusTo: function (boids, position, radius) {
+	getWithinRadiusTo: function (boid, boids, radius) {
 	    var result = [];
 	    var squaredRadius = radius * radius; // Compare squared distance to squared radius to avoid relatively expensive sqrt
 
 	    for (var index = 0; index < boids.length; ++index) {
-	    	var boid = boids[index];
-	        var squaredDistance = position.getSquaredDistanceTo(boid.position);
+	        var otherBoid = boids[index];
+	        if (otherBoid === boid)
+	            continue;
+
+	        var squaredDistance = boid.position.getSquaredDistanceTo(otherBoid.position);
 	        if (squaredDistance <= squaredRadius)
-	        	result.push(boid);
+	        	result.push(otherBoid);
 	    }
 
 	    return result;

@@ -59,7 +59,7 @@ describe("BoidCollection", function() {
 					new Flocking.Boid(new Flocking.Vector(2, 0)),
 				];
 
-				var within = Flocking.BoidCollection.getWithinRadiusTo(boids, new Flocking.Vector(0, 0), 2);
+				var within = Flocking.BoidCollection.getWithinRadiusTo(new Flocking.Boid(new Flocking.Vector(0, 0)), boids, 2);
 
 				expect(within.length).toBe(3);
 				expect(within[0]).toBe(boids[0]);
@@ -80,7 +80,7 @@ describe("BoidCollection", function() {
 					new Flocking.Boid(new Flocking.Vector(1, 0))
 				];
 
-				var within = Flocking.BoidCollection.getWithinRadiusTo(boids, new Flocking.Vector(0, 0), 2);
+				var within = Flocking.BoidCollection.getWithinRadiusTo(new Flocking.Boid(new Flocking.Vector(0, 0)), boids, 2);
 
 				expect(within.length).toBe(2);
 				expect(within[0]).toBe(boids[3]);
@@ -96,7 +96,7 @@ describe("BoidCollection", function() {
 					new Flocking.Boid(new Flocking.Vector(10, 0)),
 				];
 
-				var within = Flocking.BoidCollection.getWithinRadiusTo(boids, new Flocking.Vector(0, 0), 2);
+				var within = Flocking.BoidCollection.getWithinRadiusTo(new Flocking.Boid(new Flocking.Vector(0, 0)), boids, 2);
 
 				expect(within.length).toBe(0);
 			});
