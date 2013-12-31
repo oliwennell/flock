@@ -6,7 +6,7 @@ Flocking.Display = {
     init: function(canvasElement) {
 
         var boids = [];
-        for (var index = 0; index < 90; ++index) {
+        for (var index = 0; index < 150; ++index) {
             var dir = new Flocking.Vector(Math.random(), Math.random());
             dir.normalise();
             var boid = new Flocking.Boid(
@@ -16,7 +16,7 @@ Flocking.Display = {
         }
         
         var boulders = [];
-        for (var index = 0; index < 5; ++index) {
+        for (var index = 0; index < 15; ++index) {
             var pos = new Flocking.Vector(Math.random() * canvasElement.width, Math.random() * canvasElement.height);
             var boulder = { position: pos, radius: 2 + Math.random() * 7 };
             boulders.push(boulder);
@@ -26,7 +26,7 @@ Flocking.Display = {
         var parameters = {
             flockRadius: 20,
             minDesirableDistance: 3,
-            maxVelocity: 0.0075,
+            maxVelocity: 0.02,
             steeringSpeed: 0.01,
             width: canvasElement.width,
             height: canvasElement.height

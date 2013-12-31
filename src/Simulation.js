@@ -90,7 +90,7 @@ Flocking.Simulation = function (inputBoids, parameters, inputBoulders) {
         boid.velocity.add(adjustedVel);
     };
 
-    var separateBoidFromBoulders = function (boid, boulders, msElapsed) {
+    var separateBoidFromBoulders = function (boid, msElapsed) {
         var adjustedVel = new Flocking.Vector();
         var numAdjusted = 0;
         var boulderRadiusScale = 2.5;
@@ -115,8 +115,9 @@ Flocking.Simulation = function (inputBoids, parameters, inputBoulders) {
             var dist = dir.getLength();
             var maxDist = boulder.radius * boulderRadiusScale;
             dir.normalise();
+
             // The closer the boulder is, the larger the force we want to apply away from it.
-            dir.multiplyScalar(Math.pow(maxDist / dist, 2) * maxVelocity); 
+            dir.multiplyScalar(Math.pow(maxDist / dist, 2) * maxVelocity);
 
             adjustedVel.add(dir);
 
@@ -129,11 +130,30 @@ Flocking.Simulation = function (inputBoids, parameters, inputBoulders) {
         adjustedVel.x /= numAdjusted;
         adjustedVel.y /= numAdjusted;
 
-        adjustedVel.multiplyScalar(msElapsed * 2);
+        adjustedVel.multiplyScalar(msElapsed * 100);
 
         boid.velocity.add(adjustedVel);
     };
 
+    var preventBoidsPenetratingBoulders = function (boid) {
+
+        for (var index = 0; index < boulders.length; ++index) {
+            var boulder = boulders[index];
+
+            var dist = boulder.position.getDistanceTo(boid.position);
+            var isInside = dist <= boulder.radius;
+            if (!isInside)
+                continue;
+
+            var dir = boid.position.duplicate();
+            dir.subtract(boulder.position);
+            dir.normalise();
+            dir.multiplyScalar(boulder.radius - dist + 0.1);
+
+            boid.position.add(dir);
+        }
+    };
+        
     self.update = function (msElapsed) {
         
         for (var index = 0; index < boids.length; ++index) {
@@ -146,8 +166,10 @@ Flocking.Simulation = function (inputBoids, parameters, inputBoulders) {
                 steerBoidToCentreOfNeighbours(boid, neighbours, msElapsed);
             }
 
-            if (boulders.length != 0)
-                separateBoidFromBoulders(boid, boulders, msElapsed);
+            if (boulders.length != 0) {
+                separateBoidFromBoulders(boid, msElapsed);
+                preventBoidsPenetratingBoulders(boid);
+            }
 
             var diff = boid.velocity.duplicate();
             diff.clamp(msElapsed * maxVelocity);
