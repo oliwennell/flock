@@ -20,6 +20,11 @@ Flocking.Vector = function (x, y) {
         self.y *= scalar;
     };
 
+    self.divideScalar = function (scalar) {
+        self.x /= scalar;
+        self.y /= scalar;
+    };
+
     self.normalise = function () {
         var length = Math.sqrt(self.x * self.x + self.y * self.y);
         if (length == 0)

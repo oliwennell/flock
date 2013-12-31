@@ -58,6 +58,18 @@ describe("Vector", function () {
         });
     });
 
+    describe("dividing a vector by a scalar", function () {
+
+        it("divides the vector's X and Y values by the scalar", function () {
+            var vector = new Flocking.Vector(2, 4);
+
+            vector.divideScalar(2);
+
+            expect(vector.x).toBe(1);
+            expect(vector.y).toBe(2);
+        });
+    });
+
     describe("normalising a vector", function () {
 
         it("produces a unit vector", function () {

@@ -22,10 +22,6 @@ Flocking.Simulation = function (inputBoids, parameters, inputBoulders) {
         return boulders;
     };
     
-    var getNeighbours = function (targetIndex) {
-        return Flocking.BoidCollection.getWithinRadiusTo(boids[targetIndex], boids, flockRadius);
-    };
-
     var alignBoidWithNeighbours = function (boid, neighbours, msElapsed) {
 
         var avgHeading = Flocking.BoidCollection.getAverageVelocity(neighbours);
@@ -81,9 +77,7 @@ Flocking.Simulation = function (inputBoids, parameters, inputBoulders) {
         if (numAdjusted == 0)
             return;
 
-        adjustedVel.x /= numAdjusted;
-        adjustedVel.y /= numAdjusted;
-
+        adjustedVel.divideScalar(numAdjusted);
         adjustedVel.normalise();
         adjustedVel.multiplyScalar(-1 * msElapsed * maxVelocity);
 
@@ -127,9 +121,7 @@ Flocking.Simulation = function (inputBoids, parameters, inputBoulders) {
         if (numAdjusted == 0)
             return;
 
-        adjustedVel.x /= numAdjusted;
-        adjustedVel.y /= numAdjusted;
-
+        adjustedVel.divideScalar(numAdjusted);
         adjustedVel.multiplyScalar(msElapsed * 100);
 
         boid.velocity.add(adjustedVel);
@@ -159,7 +151,7 @@ Flocking.Simulation = function (inputBoids, parameters, inputBoulders) {
         for (var index = 0; index < boids.length; ++index) {
             var boid = boids[index];
 
-            var neighbours = getNeighbours(index);
+            var neighbours = Flocking.BoidCollection.getWithinRadiusTo(boids[index], boids, flockRadius);
             if (neighbours.length != 0) {
                 alignBoidWithNeighbours(boid, neighbours, msElapsed);
                 separateBoidFromNeighbours(boid, neighbours, msElapsed);
