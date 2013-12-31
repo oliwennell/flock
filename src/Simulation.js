@@ -73,9 +73,6 @@ Flocking.Simulation = function (inputBoids, parameters, inputBoulders) {
             var dist = dir.getLength();
             dir.multiplyScalar(1 / Math.min(dist, minDesirableDistance));
 
-            dir.multiplyScalar(msElapsed * maxVelocity);
-
-            dir.normalise();
             adjustedVel.add(dir);
 
             numAdjusted++;
@@ -86,8 +83,9 @@ Flocking.Simulation = function (inputBoids, parameters, inputBoulders) {
 
         adjustedVel.x /= numAdjusted;
         adjustedVel.y /= numAdjusted;
-        
-        adjustedVel.multiplyScalar(-1);
+
+        adjustedVel.normalise();
+        adjustedVel.multiplyScalar(-1 * msElapsed * maxVelocity);
 
         boid.velocity.add(adjustedVel);
     };
@@ -100,17 +98,20 @@ Flocking.Simulation = function (inputBoids, parameters, inputBoulders) {
             var boulder = boulders[index];
 
             var sqDist = boulder.position.getSquaredDistanceTo(boid.position);
-            var isTooClose = sqDist < (boulder.radius * 4) * (boulder.radius * 4);
+            var isTooClose = sqDist < (boulder.radius * 2.5) * (boulder.radius * 2.5);
             if (!isTooClose)
                 continue;
 
-            var dir = boulder.position.duplicate();
-            dir.subtract(boid.position);
+            var dir = boid.position.duplicate();
+            dir.subtract(boulder.position);
 
             var x = dir.x;
             var y = dir.y;
             dir.x = y;
             dir.y = -x;
+
+            var dist = dir.getLength();
+            dir.multiplyScalar(1 / dist*2.5);
 
             adjustedVel.add(dir);
 
