@@ -93,25 +93,30 @@ Flocking.Simulation = function (inputBoids, parameters, inputBoulders) {
     var separateBoidFromBoulders = function (boid, boulders, msElapsed) {
         var adjustedVel = new Flocking.Vector();
         var numAdjusted = 0;
+        var boulderRadiusScale = 2.5;
 
         for (var index = 0; index < boulders.length; ++index) {
             var boulder = boulders[index];
 
             var sqDist = boulder.position.getSquaredDistanceTo(boid.position);
-            var isTooClose = sqDist < (boulder.radius * 2.5) * (boulder.radius * 2.5);
+            var isTooClose = sqDist < Math.pow(boulder.radius * boulderRadiusScale, 2);
             if (!isTooClose)
                 continue;
 
-            var dir = boid.position.duplicate();
-            dir.subtract(boulder.position);
+            var dir = boulder.position.duplicate();
+            dir.subtract(boid.position);
 
+            // New heading is at a right angle to the vector between boid and boulder
             var x = dir.x;
             var y = dir.y;
             dir.x = y;
             dir.y = -x;
 
             var dist = dir.getLength();
-            dir.multiplyScalar(1 / dist*2.5);
+            var maxDist = boulder.radius * boulderRadiusScale;
+            dir.normalise();
+            // The closer the boulder is, the larger the force we want to apply away from it.
+            dir.multiplyScalar(Math.pow(maxDist / dist, 2) * maxVelocity); 
 
             adjustedVel.add(dir);
 
@@ -124,8 +129,7 @@ Flocking.Simulation = function (inputBoids, parameters, inputBoulders) {
         adjustedVel.x /= numAdjusted;
         adjustedVel.y /= numAdjusted;
 
-        adjustedVel.normalise();
-        adjustedVel.multiplyScalar(msElapsed * maxVelocity);
+        adjustedVel.multiplyScalar(msElapsed * 2);
 
         boid.velocity.add(adjustedVel);
     };

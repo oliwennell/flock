@@ -126,7 +126,7 @@ describe("Simulation", function () {
     describe("A boid that is within range to a boulder", function () {
 
         it("avoids it", function () {
-            var boid = new Flocking.Boid(new Flocking.Vector(20, 150), new Flocking.Vector(1.000, 0.000));
+            var boid = new Flocking.Boid(new Flocking.Vector(10, 150), new Flocking.Vector(0.100, 0.000));
             var boulder = {
                 position: new Flocking.Vector(40, 150),
                 radius: 20
