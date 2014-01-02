@@ -39,6 +39,28 @@ describe("Simulation", function () {
             }
         });
 
+        it("moves towards centre of neighbours", function () {
+            boids = [
+                new Flocking.Boid(new Flocking.Vector(40, 30), new Flocking.Vector(1.000, 0.000)),
+                new Flocking.Boid(new Flocking.Vector(40, 50), new Flocking.Vector(1.000, 0.000)),
+                new Flocking.Boid(new Flocking.Vector(40, 70), new Flocking.Vector(1.000, 0.000)),
+            ];
+
+            simulation = new Flocking.Simulation(boids, parameters);
+
+            for (var time = 0; time < 20000; time += 15) {
+                simulation.update(15);
+            }
+
+            var distance0To1 = boids[0].position.getDistanceTo(boids[1].position);
+            expect(distance0To1).toBeLessThan(6);
+            expect(distance0To1).toBeGreaterThan(5);
+
+            var distance1To2 = boids[1].position.getDistanceTo(boids[2].position);
+            expect(distance1To2).toBeLessThan(6);
+            expect(distance1To2).toBeGreaterThan(5);
+        });
+
         describe("when it starts to become too close", function () {
 
             it("moves away from them", function () {
