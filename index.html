@@ -18,11 +18,9 @@
 
     <style>
         #display {
-            height: 300px;
-            width: 100%;
+            border: 1px solid white;
         }
     </style>
-
 </head>
 <body>
     <div id="header">
@@ -42,7 +40,7 @@
                 <span class="credits left">Project maintained by <a href="https://github.com/oliwennell">oliwennell</a></span>
                 <span class="credits right">Hosted on GitHub Pages &mdash; Theme by <a href="https://twitter.com/michigangraham">mattgraham</a></span>
             </div>
-            <canvas id="display">
+            <canvas id="display" width="650" height="450">
             </canvas>
         </section>
     </div>
@@ -52,9 +50,9 @@
     <script src="https://rawgithub.com/oliwennell/flock/master/src/Boid.js"></script>
     <script src="https://rawgithub.com/oliwennell/flock/master/src/BoidCollection.js"></script>
     <script src="https://rawgithub.com/oliwennell/flock/master/src/Simulation.js"></script>
-    <script src="https://rawgithub.com/oliwennell/flock/master/src/Display.js"></script>
+    <script src="https://rawgithub.com/oliwennell/flock/master/src/Application.js"></script>
     <script>
-        Flocking.Display.init(document.getElementById('display'));
+        new Flocking.Application(document.getElementById('display'));
     </script>
 
 </body>
