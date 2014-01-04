@@ -4,25 +4,24 @@
         <script type="text/javascript" src="src/Boid.js"></script>
         <script type="text/javascript" src="src/BoidCollection.js"></script>
         <script type="text/javascript" src="src/Simulation.js"></script>
-        <script type="text/javascript" src="src/Display.js"></script>
+        <script type="text/javascript" src="src/Application.js"></script>
 
         <style>
             #display {
                 top: 10px;
                 left: 10px;
                 border: 1px solid black;
-                width: 600px;
-                height: 300px;
                 position: relative;
+                background-color: black;
             }
         </style>
     </head>
     <body>
-        <canvas id="display">
+        <canvas id="display" width="600" height="400">
         </canvas>
     </body>
 
     <script type="text/javascript">
-        Flocking.Display.init(document.getElementById('display'));
+        new Flocking.Application(document.getElementById('display'), 50, 7);
     </script>
 </html>
