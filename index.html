@@ -24,7 +24,7 @@
         }
 
         #flock-display {
-            background: grey;
+            background: black;
         }
     </style>
 </head>
@@ -47,18 +47,20 @@
                 <canvas id="flock-display" width="600" height="300"></canvas>
             </div>
 
-            <p>For a while I've been meaning to have a go at writing a flocking simulator. First used by Craig Reynolds in his Boids application, the generally accepted approach is a pretty good approximation of how birds move in flocks. It can also be used to model similar situations, such as herds of mammals, or even to solve optimisation problems.</p>
+            <p>For a while I've been meaning to have a go at writing a <a href="http://en.wikipedia.org/wiki/Flocking_(behavior)">flocking</a> simulator. First used by Craig Reynolds in his <a href="http://www.red3d.com/cwr/boids/">Boids</a> application, the generally accepted approach is a pretty good approximation of how birds move in flocks. It can also be used to model similar situations, such as herds of mammals <a href="http://en.wikipedia.org/wiki/Flocking_(behavior)#Applications">and more.</a></p>
             <p>Part of what makes it interesting to me is that it shows emergent behaviour. That is, a small number of simple rules produce behaviour that seems complex.</p>
-            <p>I had some spare time recently so I decided to write a simulator in 2D simulator using JavaScript. I'm by no means the first to do this, so to keep things interesting I decided to see if I could do it in a test-driven way.</p>
-            <p>This post will focus on my testing approach. For more detail on how the simulation is implemented you can view the code on GitHub, or check out the various other articles online.</p>
+            <p>I had some spare time recently so I decided to write a 2D simulator in JavaScript. I'm by no means the first to do this, so to keep things interesting I decided to see if I could do it in a test-driven way.</p>
+            <p>My focus will be on my approach to testing. For more detail on how the simulation is implemented you can view the code on GitHub, or check out the various <a href="http://www.kfish.org/boids/pseudocode.html">other</a> <a href="http://harry.me/blog/2011/02/17/neat-algorithms-flocking/">articles</a> <a href="http://processing.org/examples/flocking.html">available</a> available.</p>
             <h2>The Rules</h2>
             <p>Each  creature in the flock (a "Boid") will follow three rules:</p>
-            <ul>
-                <li><strong>Alignment</strong> - try to match the direction of your neighbours</li>
-                <li><strong>Cohesion</strong> - try to move towards the centre of mass of your neighbours</li>
-                <li><strong>Separation</strong> - avoid getting too close to your neighbours</li>
-            </ul>
+            <h3>1. Alignment</h3>
+            <p>Try to match the direction of your neighbours</p><img src="images/1.png" />
+            <h3>2. Cohesion</h3>
+            <p>Try to move towards the centre of mass of your neighbours</p><img src="images/2.png" />
+            <h3>3. Separation</h3>
+            <p>Avoid getting too close to your neighbours</p><img src="images/3.png" />
             <p>A boid's "neighbours" are any other boids within a certain distance away.</p>
+            <p></p>
             <h2>My Attempt</h2>
             <p>A single boid is represented by its own class:</p>
             <pre><code>
@@ -106,7 +108,7 @@ describe("A boid that is within range to others", function () {
     });
 });
 </code></pre>
-            <p>Each test of the Simulation class creates a small number of boids, runs the simulation for a while, then checks if the boids end up where they should.</p>
+            <p>Each test of the Simulation class creates a small number of boids, runs the simulation for a while, then checks that the boids end up where they should.</p>
             <p>For example, this test checks a boid follows the Alignment rule:</p>
             <pre><code>
 it("steers to match their average direction", function () {
@@ -121,12 +123,12 @@ it("steers to match their average direction", function () {
     var simulation = new Flocking.Simulation(boids, parameters);
   
     // Step through the simulation for two seconds (not real-time).
-    for (var time = 0; time %lt; 2000; time += 15) {
+    for (var time = 0; time < 2000; time += 15) {
         simulation.update(15);
     }
 
     // The boids should by now all face the same direction
-    for (var index = 0; index &lt; 3; ++index) {
+    for (var index = 0; index < 3; ++index) {
         var direction = boids[index].velocity.duplicate();
         direction.normalise();
 
@@ -220,11 +222,11 @@ describe("A boid that is within range to a boulder", function () {
 
         simulation = new Flocking.Simulation([boid], parameters, [boulder]);
 
-        for (var time = 0; time &lt; 4000; time += 15) {
+        for (var time = 0; time < 4000; time += 15) {
             simulation.update(15);
 
             var boidBoulderDistance = boid.position.getDistanceTo(boulder.position);
-            var isBoidWithinBoulder = boidBoulderDistance &lt;= boulder.radius;
+            var isBoidWithinBoulder = boidBoulderDistance <= boulder.radius;
             expect(isBoidWithinBoulder).toBe(false);
             if (isBoidWithinBoulder)
                 return;
@@ -246,12 +248,12 @@ describe("A boid that has penetrated a boulder", function () {
 
         simulation = new Flocking.Simulation([boid], parameters, [boulder]);
 
-        for (var time = 0; time &lt; 1000; time += 15) {
+        for (var time = 0; time < 1000; time += 15) {
             simulation.update(15);
         }
 
         var boidBoulderDistance = boid.position.getDistanceTo(boulder.position);
-        var isBoidWithinBoulder = boidBoulderDistance &lt;= boulder.radius;
+        var isBoidWithinBoulder = boidBoulderDistance <= boulder.radius;
         expect(isBoidWithinBoulder).toBe(false);
     });
 });
