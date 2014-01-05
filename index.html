@@ -50,34 +50,48 @@
             <p>For a while I've been meaning to have a go at writing a <a href="http://en.wikipedia.org/wiki/Flocking_(behavior)">flocking</a> simulator. First used by Craig Reynolds in his <a href="http://www.red3d.com/cwr/boids/">Boids</a> application, the generally accepted approach is a pretty good approximation of how birds move in flocks. It can also be used to model similar situations, such as herds of mammals <a href="http://en.wikipedia.org/wiki/Flocking_(behavior)#Applications">and more.</a></p>
             <p>Part of what makes it interesting to me is that it shows emergent behaviour. That is, a small number of simple rules produce behaviour that seems complex.</p>
             <p>I had some spare time recently so I decided to write a 2D simulator in JavaScript. I'm by no means the first to do this, so to keep things interesting I decided to see if I could do it in a test-driven way.</p>
-            <p>My focus will be on my approach to testing. For more detail on how the simulation is implemented you can view the code on GitHub, or check out the various <a href="http://www.kfish.org/boids/pseudocode.html">other</a> <a href="http://harry.me/blog/2011/02/17/neat-algorithms-flocking/">articles</a> <a href="http://processing.org/examples/flocking.html">available</a> available.</p>
+            <p>My focus will be on my approach to testing. For more detail on how the simulation is implemented you can <a href="https://github.com/oliwennell/flock">view the source</a>, or check out the various <a href="http://www.kfish.org/boids/pseudocode.html">other</a> <a href="http://harry.me/blog/2011/02/17/neat-algorithms-flocking/">articles</a> <a href="http://processing.org/examples/flocking.html">available</a>.</p>
             <h2>The Rules</h2>
             <p>Each  creature in the flock (a "Boid") will follow three rules:</p>
             <h3>1. Alignment</h3>
-            <p>Try to match the direction of your neighbours</p><img src="images/1.png" />
+            <p>Try to match the direction of your neighbours.</p><img src="images/1.png" />
+            <p></p>
             <h3>2. Cohesion</h3>
-            <p>Try to move towards the centre of mass of your neighbours</p><img src="images/2.png" />
+            <p>Try to move towards the centre of mass of your neighbours.</p><img src="images/2.png" />
+            <p></p>
             <h3>3. Separation</h3>
-            <p>Avoid getting too close to your neighbours</p><img src="images/3.png" />
-            <p>A boid's "neighbours" are any other boids within a certain distance away.</p>
+            <p>Avoid getting too close to your neighbours.</p><img src="images/3.png" />
+            <p></p>
+            <p>A boid's neighbours are any other boids within a certain distance away.</p>
             <p></p>
             <h2>My Attempt</h2>
+            <p>The <em>Vector</em> class has X and Y values and is used to represent 2D points and vectors.</p>
+            <pre><code>
+Flocking.Vector = function (x, y) {
+    var self = this;
+    
+    self.x = x || 0;
+    self.y = y || 0;
+
+    // ...
+
+});
+            </code></pre>
             <p>A single boid is represented by its own class:</p>
             <pre><code>
 Flocking.Boid = function (position, velocity) {
     var self = this;
 
-    // Position of the boid (X, Y)
     self.position = position || new Flocking.Vector();
 
-    // Direction and speed the boid is travelling in X and Y directions
+    // A boid's velocity defines its direction and speed.
     self.velocity = velocity || new Flocking.Vector();
 
     // ...
 
 };
 </code></pre>
-            <p>A Simulation then owns a collection of Boids, and updates each of them according to the rules.</p>
+            <p>A <em>Simulation</em> then owns a collection of <em>Boid</em>s, and updates each of them according to the rules.</p>
             <pre><code>
 Flocking.Simulation = function(boids, ...) {
 
@@ -88,7 +102,7 @@ Flocking.Simulation = function(boids, ...) {
     };
 };
 </code></pre>
-            <p>Simulation's initial tests were designed to show that boids followed the rules.</p>
+            <p><em>Simulation</em>'s initial tests were designed to show that boids followed the rules.</p>
             <pre><code>
 describe("A boid that is within range to others", function () {
 
@@ -138,21 +152,17 @@ it("steers to match their average direction", function () {
 });
 </code></pre>
             <p>You could argue these tests are simplistic, because they use contrived situations with small numbers of boids. While there may well be room for regression-style tests that run a simulation with larger number of boids, I found my tests were still useful to drive development and verifying the boid's behaviour. Also their simplicity meant they were easier to write, understand and diagnose when they went red.</p>
-            <p>The lower-level functionality was also tested, such as the vector maths:</p>
+            <p>The lower-level functionality is also tested, such as the vector maths:</p>
             <pre><code>
 Flocking.Vector = function (x, y) {
     var self = this;
     self.x = x || 0;
     self.y = y || 0;
 
-    self.add = function (other) {
-        self.x += other.x;
-        self.y += other.y;
-    };
+    // ...
 
-    self.subtract = function (other) {
-        self.x -= other.x;
-        self.y -= other.y;
+    self.getLength = function () {
+        return Math.sqrt(self.x*self.x + self.y*self.y);
     };
 
     // ...
@@ -162,54 +172,21 @@ Flocking.Vector = function (x, y) {
             <pre><code>
 describe("Vector", function () {
 
-    describe("when constructed", function () {
+    // ...
 
-        it("X and Y values match those given", function () {
-            var vector = new Flocking.Vector(1, 2.3);
+    describe("length", function () {
 
-            expect(vector.x).toBe(1);
-            expect(vector.y).toBe(2.3);
-        });
+        expect(new Flocking.Vector(10, 0).getLength()).toBe(10);
+        expect(new Flocking.Vector(20, 0).getLength()).toBe(20);
+        expect(new Flocking.Vector(10, 10).getLength()).toBeCloseTo(14.1421, tolerance);
 
-        it("X and Y default to 0 if unspecified", function () {
-            var vector = new Flocking.Vector();
-
-            expect(vector.x).toBe(0);
-            expect(vector.y).toBe(0);
-        });
     });
-
-    describe("adding a vector", function() {
-
-        it("adds the X and Y values of another vector to the original vector", function () {
-            var v1 = new Flocking.Vector(1, 2);
-            var v2 = new Flocking.Vector(3, 4);
-
-            v1.add(v2);
-
-            expect(v1.x).toBe(4);
-            expect(v1.y).toBe(6);
-        });
-    });
-
-    describe("subtracting a vector", function () {
-
-        it("subtracts the X and Y values of another vector from the original vector", function () {
-            var v1 = new Flocking.Vector(1, 8);
-            var v2 = new Flocking.Vector(3, 4);
-
-            v1.subtract(v2);
-
-            expect(v1.x).toBe(-2);
-            expect(v1.y).toBe(4);
-        });
-    });
-  
+    
     // ...
 
 </code></pre>
-            <p>With a basic simulation working, I decided to add obstacles ("boulders" in the code, actually just red circles) for the boids to avoid.</p>
-            <p>This meant that in addition to the standard three rules, Simulation now also needed to make boids steer away from boulders that were within range.</p>
+            <p>With a basic simulation working, I decided to add obstacles (the red circles, referred to as <em>boulders</em> in the code) for the boids to avoid.</p>
+            <p>This meant that in addition to the standard three rules, <em>Simulation</em> now also needed to make boids steer away from boulders that were within range.</p>
             <pre><code>
 describe("A boid that is within range to a boulder", function () {
 
