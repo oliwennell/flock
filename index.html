@@ -1,6 +1,6 @@
 <!doctype html>
 <html>
-  <head>
+<head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
     <title>Flock by oliwennell</title>
@@ -11,61 +11,272 @@
     <!--[if lt IE 9]>
     <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
-  </head>
-  <body>
+
+    <script type="text/javascript" src="https://rawgithub.com/oliwennell/flock/master/src/Vector.js"></script>
+    <script type="text/javascript" src="https://rawgithub.com/oliwennell/flock/master/src/Boid.js"></script>
+    <script type="text/javascript" src="https://rawgithub.com/oliwennell/flock/master/src/BoidCollection.js"></script>
+    <script type="text/javascript" src="https://rawgithub.com/oliwennell/flock/master/src/Simulation.js"></script>
+    <script type="text/javascript" src="https://rawgithub.com/oliwennell/flock/master/src/Application.js"></script>
+
+    <style>
+        #flock-container {
+            margin-bottom: 15px;
+        }
+
+        #flock-display {
+            background: grey;
+        }
+    </style>
+</head>
+<body>
     <div class="wrapper">
-      <header>
-        <h1>Flock</h1>
-        <p></p>
+        <header>
+            <p class="view"><a href="https://github.com/oliwennell/flock">View the Project on GitHub <small>oliwennell/flock</small></a></p>
 
-        <p class="view"><a href="https://github.com/oliwennell/flock">View the Project on GitHub <small>oliwennell/flock</small></a></p>
+            <ul>
+                <li><a href="https://github.com/oliwennell/flock/zipball/master">Download <strong>ZIP File</strong></a></li>
+                <li><a href="https://github.com/oliwennell/flock/tarball/master">Download <strong>TAR Ball</strong></a></li>
+                <li><a href="https://github.com/oliwennell/flock">View On <strong>GitHub</strong></a></li>
+            </ul>
+            
+        </header>
+        <section>
+            <h1>Flock</h1>
 
+            <div id="flock-container">
+                <canvas id="flock-display" width="600" height="300"></canvas>
+            </div>
 
-        <ul>
-          <li><a href="https://github.com/oliwennell/flock/zipball/master">Download <strong>ZIP File</strong></a></li>
-          <li><a href="https://github.com/oliwennell/flock/tarball/master">Download <strong>TAR Ball</strong></a></li>
-          <li><a href="https://github.com/oliwennell/flock">View On <strong>GitHub</strong></a></li>
-        </ul>
-      </header>
-      <section>
-        <h3>
-<a name="welcome-to-github-pages" class="anchor" href="#welcome-to-github-pages"><span class="octicon octicon-link"></span></a>Welcome to GitHub Pages.</h3>
+            <p>For a while I've been meaning to have a go at writing a flocking simulator. First used by Craig Reynolds in his Boids application, the generally accepted approach is a pretty good approximation of how birds move in flocks. It can also be used to model similar situations, such as herds of mammals, or even to solve optimisation problems.</p>
+            <p>Part of what makes it interesting to me is that it shows emergent behaviour. That is, a small number of simple rules produce behaviour that seems complex.</p>
+            <p>I had some spare time recently so I decided to write a simulator in 2D simulator using JavaScript. I'm by no means the first to do this, so to keep things interesting I decided to see if I could do it in a test-driven way.</p>
+            <p>This post will focus on my testing approach. For more detail on how the simulation is implemented you can view the code on GitHub, or check out the various other articles online.</p>
+            <h2>The Rules</h2>
+            <p>Each  creature in the flock (a "Boid") will follow three rules:</p>
+            <ul>
+                <li><strong>Alignment</strong> - try to match the direction of your neighbours</li>
+                <li><strong>Cohesion</strong> - try to move towards the centre of mass of your neighbours</li>
+                <li><strong>Separation</strong> - avoid getting too close to your neighbours</li>
+            </ul>
+            <p>A boid's "neighbours" are any other boids within a certain distance away.</p>
+            <h2>My Attempt</h2>
+            <p>A single boid is represented by its own class:</p>
+            <pre><code>
+Flocking.Boid = function (position, velocity) {
+    var self = this;
 
-<p>This automatic page generator is the easiest way to create beautiful pages for all of your projects. Author your page content here using GitHub Flavored Markdown, select a template crafted by a designer, and publish. After your page is generated, you can check out the new branch:</p>
+    // Position of the boid (X, Y)
+    self.position = position || new Flocking.Vector();
 
-<pre><code>$ cd your_repo_root/repo_name
-$ git fetch origin
-$ git checkout gh-pages
+    // Direction and speed the boid is travelling in X and Y directions
+    self.velocity = velocity || new Flocking.Vector();
+
+    // ...
+
+};
 </code></pre>
+            <p>A Simulation then owns a collection of Boids, and updates each of them according to the rules.</p>
+            <pre><code>
+Flocking.Simulation = function(boids, ...) {
 
-<p>If you're using the GitHub for Mac, simply sync your repository and you'll see the new branch.</p>
+    // Update the simulation based on how much time has elapsed
+    // since the last update (this produces smooth animation).
+    self.update = function(msElapsed) {
+        // ...
+    };
+};
+</code></pre>
+            <p>Simulation's initial tests were designed to show that boids followed the rules.</p>
+            <pre><code>
+describe("A boid that is within range to others", function () {
 
-<h3>
-<a name="designer-templates" class="anchor" href="#designer-templates"><span class="octicon octicon-link"></span></a>Designer Templates</h3>
+    it("steers to match their average direction", function () {
+        // ...
+    });
 
-<p>We've crafted some handsome templates for you to use. Go ahead and continue to layouts to browse through them. You can easily go back to edit your page before publishing. After publishing your page, you can revisit the page generator and switch to another theme. Your Page content will be preserved if it remained markdown format.</p>
+    it("moves towards centre of neighbours", function () {
+        // ...
+    });
 
-<h3>
-<a name="rather-drive-stick" class="anchor" href="#rather-drive-stick"><span class="octicon octicon-link"></span></a>Rather Drive Stick?</h3>
+    describe("when it starts to become too close", function () {
 
-<p>If you prefer to not use the automatic generator, push a branch named <code>gh-pages</code> to your repository to create a page manually. In addition to supporting regular HTML content, GitHub Pages support Jekyll, a simple, blog aware static site generator written by our own Tom Preston-Werner. Jekyll makes it easy to create site-wide headers and footers without having to copy them across every page. It also offers intelligent blog support and other advanced templating features.</p>
+        it("moves away from them", function () {
+            // ...
+        });
+    });
+});
+</code></pre>
+            <p>Each test of the Simulation class creates a small number of boids, runs the simulation for a while, then checks if the boids end up where they should.</p>
+            <p>For example, this test checks a boid follows the Alignment rule:</p>
+            <pre><code>
+it("steers to match their average direction", function () {
+  
+    // Create 3 boids, all facing in different directions
+    var boids = [
+      new Flocking.Boid(new Flocking.Vector(40, 25), new Flocking.Vector(0.500, 0.500)),
+      new Flocking.Boid(new Flocking.Vector(40, 40), new Flocking.Vector(1.000, 0.000)),
+      new Flocking.Boid(new Flocking.Vector(40, 55), new Flocking.Vector(0.500, -0.500))
+    ];
 
-<h3>
-<a name="authors-and-contributors" class="anchor" href="#authors-and-contributors"><span class="octicon octicon-link"></span></a>Authors and Contributors</h3>
+    var simulation = new Flocking.Simulation(boids, parameters);
+  
+    // Step through the simulation for two seconds (not real-time).
+    for (var time = 0; time %lt; 2000; time += 15) {
+        simulation.update(15);
+    }
 
-<p>You can <a href="https://github.com/blog/821" class="user-mention">@mention</a> a GitHub username to generate a link to their profile. The resulting <code>&lt;a&gt;</code> element will link to the contributor's GitHub Profile. For example: In 2007, Chris Wanstrath (<a href="https://github.com/defunkt" class="user-mention">@defunkt</a>), PJ Hyett (<a href="https://github.com/pjhyett" class="user-mention">@pjhyett</a>), and Tom Preston-Werner (<a href="https://github.com/mojombo" class="user-mention">@mojombo</a>) founded GitHub.</p>
+    // The boids should by now all face the same direction
+    for (var index = 0; index &lt; 3; ++index) {
+        var direction = boids[index].velocity.duplicate();
+        direction.normalise();
 
-<h3>
-<a name="support-or-contact" class="anchor" href="#support-or-contact"><span class="octicon octicon-link"></span></a>Support or Contact</h3>
+        expect(direction.x).toBeCloseTo(1, tolerance);
+        expect(direction.y).toBeCloseTo(0, tolerance);
+    }
+});
+</code></pre>
+            <p>You could argue these tests are simplistic, because they use contrived situations with small numbers of boids. While there may well be room for regression-style tests that run a simulation with larger number of boids, I found my tests were still useful to drive development and verifying the boid's behaviour. Also their simplicity meant they were easier to write, understand and diagnose when they went red.</p>
+            <p>The lower-level functionality was also tested, such as the vector maths:</p>
+            <pre><code>
+Flocking.Vector = function (x, y) {
+    var self = this;
+    self.x = x || 0;
+    self.y = y || 0;
 
-<p>Having trouble with Pages? Check out the documentation at <a href="http://help.github.com/pages">http://help.github.com/pages</a> or contact <a href="mailto:support@github.com">support@github.com</a> and we’ll help you sort it out.</p>
-      </section>
-      <footer>
-        <p>This project is maintained by <a href="https://github.com/oliwennell">oliwennell</a></p>
-        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
-      </footer>
+    self.add = function (other) {
+        self.x += other.x;
+        self.y += other.y;
+    };
+
+    self.subtract = function (other) {
+        self.x -= other.x;
+        self.y -= other.y;
+    };
+
+    // ...
+
+};
+</code></pre>
+            <pre><code>
+describe("Vector", function () {
+
+    describe("when constructed", function () {
+
+        it("X and Y values match those given", function () {
+            var vector = new Flocking.Vector(1, 2.3);
+
+            expect(vector.x).toBe(1);
+            expect(vector.y).toBe(2.3);
+        });
+
+        it("X and Y default to 0 if unspecified", function () {
+            var vector = new Flocking.Vector();
+
+            expect(vector.x).toBe(0);
+            expect(vector.y).toBe(0);
+        });
+    });
+
+    describe("adding a vector", function() {
+
+        it("adds the X and Y values of another vector to the original vector", function () {
+            var v1 = new Flocking.Vector(1, 2);
+            var v2 = new Flocking.Vector(3, 4);
+
+            v1.add(v2);
+
+            expect(v1.x).toBe(4);
+            expect(v1.y).toBe(6);
+        });
+    });
+
+    describe("subtracting a vector", function () {
+
+        it("subtracts the X and Y values of another vector from the original vector", function () {
+            var v1 = new Flocking.Vector(1, 8);
+            var v2 = new Flocking.Vector(3, 4);
+
+            v1.subtract(v2);
+
+            expect(v1.x).toBe(-2);
+            expect(v1.y).toBe(4);
+        });
+    });
+  
+    // ...
+
+</code></pre>
+            <p>With a basic simulation working, I decided to add obstacles ("boulders" in the code, actually just red circles) for the boids to avoid.</p>
+            <p>This meant that in addition to the standard three rules, Simulation now also needed to make boids steer away from boulders that were within range.</p>
+            <pre><code>
+describe("A boid that is within range to a boulder", function () {
+
+    it("avoids it", function () {
+        var boid = new Flocking.Boid(new Flocking.Vector(10, 150), new Flocking.Vector(0.100, 0.000));
+        var boulder = {
+            position: new Flocking.Vector(40, 150),
+            radius: 20
+        };
+
+        simulation = new Flocking.Simulation([boid], parameters, [boulder]);
+
+        for (var time = 0; time &lt; 4000; time += 15) {
+            simulation.update(15);
+
+            var boidBoulderDistance = boid.position.getDistanceTo(boulder.position);
+            var isBoidWithinBoulder = boidBoulderDistance &lt;= boulder.radius;
+            expect(isBoidWithinBoulder).toBe(false);
+            if (isBoidWithinBoulder)
+                return;
+        }
+    });
+});
+</code></pre>
+            <p>Whilst the above test passed, when running the simulation it turned out that boids could still end up inside boulders, if there were also a few other boids nearby it had to avoid.</p>
+            <p>To fix this I decided to write some basic collision detection. If a boid ended up inside a boulder, it would be moved out of it.</p>
+            <pre><code>
+describe("A boid that has penetrated a boulder", function () {
+
+    it("is pushed out of it", function () {
+        var boid = new Flocking.Boid(new Flocking.Vector(35, 150), new Flocking.Vector(0.100, 0.000));
+        var boulder = {
+            position: new Flocking.Vector(50, 150),
+            radius: 20
+        };
+
+        simulation = new Flocking.Simulation([boid], parameters, [boulder]);
+
+        for (var time = 0; time &lt; 1000; time += 15) {
+            simulation.update(15);
+        }
+
+        var boidBoulderDistance = boid.position.getDistanceTo(boulder.position);
+        var isBoidWithinBoulder = boidBoulderDistance &lt;= boulder.radius;
+        expect(isBoidWithinBoulder).toBe(false);
+    });
+});
+</code></pre>
+            <p>This feels a bit hacky but it does the job and the effect looks fine, with boids seeming to collide with boulders then slide off them (the poor dears!).</p>
+            <h2>Future Improvements</h2>
+            <h3>Better wrap-around</h3>
+            <p>Boids wrap around the edges of the screen by being teleported to the opposite side that they exit from. Ideally the code would take this into account when deciding what a boid's neighbours are. At the moment the simple wrap-around logic can break flocks apart when they go off screen.</p>
+            <h3>More behaviours</h3>
+            <p>Other behaviours could be added, such as boids being attracted to food, or fleeing predators.</p>
+            <h3>More interesting display</h3>
+            <p>The boids would look nicer if they were rendered as birds with flapping wings instead of triangles.</p>
+
+        </section>
+        <footer>
+            <p>This project is maintained by <a href="https://github.com/oliwennell">oliwennell</a></p>
+            <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
+        </footer>
     </div>
+    
     <script src="javascripts/scale.fix.js"></script>
     
-  </body>
+    <script type="text/javascript">
+        new Flocking.Application(document.getElementById('flock-display'));
+    </script>
+
+</body>
 </html>
