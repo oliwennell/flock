@@ -50,7 +50,7 @@
             <p>For a while I've been meaning to have a go at writing a <a href="http://en.wikipedia.org/wiki/Flocking_(behavior)">flocking</a> simulator. First used by Craig Reynolds in his <a href="http://www.red3d.com/cwr/boids/">Boids</a> application, the generally accepted approach is a pretty good approximation of how birds move in flocks. It can also be used to model similar situations, such as herds of mammals <a href="http://en.wikipedia.org/wiki/Flocking_(behavior)#Applications">and more.</a></p>
             <p>Part of what makes it interesting to me is that it shows emergent behaviour. That is, a small number of simple rules produce behaviour that seems complex.</p>
             <p>I had some spare time recently so I decided to write a 2D simulator in JavaScript. I'm by no means the first to do this, so to keep things interesting I decided to see if I could do it in a test-driven way.</p>
-            <p>My focus will be on my approach to testing. For more detail on how the simulation is implemented you can <a href="https://github.com/oliwennell/flock">view the source</a>, or check out the various <a href="http://www.kfish.org/boids/pseudocode.html">other</a> <a href="http://harry.me/blog/2011/02/17/neat-algorithms-flocking/">articles</a> <a href="http://processing.org/examples/flocking.html">available</a>.</p>
+            <p>My focus here will be on my approach to testing. For more detail on how the simulation is implemented you can <a href="https://github.com/oliwennell/flock">view the source</a>, or check out the various <a href="http://www.kfish.org/boids/pseudocode.html">other</a> <a href="http://harry.me/blog/2011/02/17/neat-algorithms-flocking/">articles</a> <a href="http://processing.org/examples/flocking.html">available</a>.</p>
             <h2>The Rules</h2>
             <p>Each  creature in the flock (a "Boid") will follow three rules:</p>
             <h3>1. Alignment</h3>
@@ -85,6 +85,9 @@ Flocking.Boid = function (position, velocity) {
     self.position = position || new Flocking.Vector();
 
     // A boid's velocity defines its direction and speed.
+    // E.g. after an update of the simulation:
+    //  boid.position = boid.position + boid.velocity
+    // 
     self.velocity = velocity || new Flocking.Vector();
 
     // ...
