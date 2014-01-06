@@ -161,9 +161,10 @@ describe("Simulation", function () {
 
                 var boidBoulderDistance = boid.position.getDistanceTo(boulder.position);
                 var isBoidWithinBoulder = boidBoulderDistance <= boulder.radius;
-                expect(isBoidWithinBoulder).toBe(false);
-                if (isBoidWithinBoulder)
+                if (isBoidWithinBoulder) {
+                    expect(isBoidWithinBoulder).toBe(false);
                     return;
+                }
             }
         });
     });
