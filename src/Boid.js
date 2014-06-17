@@ -6,6 +6,9 @@ Flocking.Boid = function (position, velocity) {
 	self.position = position || new Flocking.Vector();
 	self.velocity = velocity || new Flocking.Vector();
 
+	self.trail = [];
+	self.trailTick = 0;
+
 	self.getDirection = function () {
 	    var direction = self.velocity.duplicate();
 	    direction.normalise();

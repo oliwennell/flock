@@ -171,6 +171,22 @@ Flocking.Simulation = function (inputBoids, parameters, inputBoulders) {
             else if (boid.position.y > height) boid.position.y = boid.position.y - height;
             if (boid.position.x < 0) boid.position.x = width + boid.position.x;
             else if (boid.position.x > width) boid.position.x = boid.position.x - width;
+
+            for (var j = 0; j < boid.trail.length; ++j) {
+                var trailItem = boid.trail[j];
+                if (trailItem.alpha == 0)
+                    continue;
+                trailItem.alpha -= msElapsed * 0.0005;
+                if (trailItem.alpha < 0)
+                    trailItem.alpha = 0;
+            }
+            boid.trailTick += msElapsed;
+            if (boid.trailTick > 120) {
+                boid.trailTick = 0;
+                boid.trail.push({ position: boid.position.duplicate(), velocity: boid.velocity.duplicate(), alpha: 1 });
+                if (boid.trail.length > 20)
+                    boid.trail.splice(0, 1);
+            }
         }
     };
 };

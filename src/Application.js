@@ -62,6 +62,35 @@ Flocking.Application = function (canvasElementIn, numBoidsIn, numBouldersIn) {
         render();
     };
 
+    var drawBoid = function (context, pos, heading, halfBoidSize, alpha, isSquare) {
+        context.save();
+        context.translate(pos.x, pos.y);
+        context.rotate(heading);
+
+        //context.globalAlpha = alpha;
+        var rgb = Math.floor(alpha * 255);
+        context.fillStyle = 'rgb(' + rgb + ',' + rgb + ',' + rgb /*+ ',' + alpha*/ + ')';
+
+        context.beginPath();
+
+        if (isSquare) {
+            context.moveTo(-halfBoidSize, halfBoidSize);
+            context.lineTo(-halfBoidSize, -halfBoidSize);
+            context.lineTo(halfBoidSize, -halfBoidSize);
+            context.lineTo(halfBoidSize, halfBoidSize);
+        }
+        else {
+            context.moveTo(-halfBoidSize, halfBoidSize);
+            context.lineTo(-halfBoidSize, -halfBoidSize);
+            context.lineTo(halfBoidSize * 2, 0);
+        }
+
+        context.closePath();
+        context.fill();
+
+        context.restore();
+    };
+
     var render = function () {
         var context = canvasElement.getContext('2d');
         context.clearRect(0, 0, canvasElement.width, canvasElement.height);
@@ -80,23 +109,17 @@ Flocking.Application = function (canvasElementIn, numBoidsIn, numBouldersIn) {
         }
 
         var halfBoidSize = 2.5;
-        context.fillStyle = 'white';
+        
         var boids = simulation.getBoids();
         for (index = 0; index < boids.length; ++index) {
             var boid = boids[index];
 
-            context.save();
-            context.translate(boid.position.x, boid.position.y);
-            context.rotate(boid.velocity.getHeading());
+            context.fillStyle = 'white';
+            drawBoid(context, boid.position, boid.velocity.getHeading(), halfBoidSize, 1, false);
 
-            context.beginPath();
-            context.moveTo(-halfBoidSize, halfBoidSize);
-            context.lineTo(-halfBoidSize, -halfBoidSize);
-            context.lineTo(halfBoidSize * 2, 0);
-            context.closePath();
-            context.fill();
-
-            context.restore();
+            for (var j = 0; j < boid.trail.length; ++j) {
+                drawBoid(context, boid.trail[j].position, boid.trail[j].velocity.getHeading(), halfBoidSize, boid.trail[j].alpha, true);
+            }
         }
 
         context.font = "10px Arial";
@@ -105,7 +128,7 @@ Flocking.Application = function (canvasElementIn, numBoidsIn, numBouldersIn) {
 
     var initialise = function () {
         createBoids();
-        createBoulders();
+        //createBoulders();
         createSimulation();
 
         lastTimeUpdated = new Date().getTime();
